@@ -78,11 +78,13 @@ sendSlack() {
   API="api/chat.postMessage"
   URL="https://${HOSTNAME}/$API?$PAYLOAD"
 
+  curlCmd="curl -s -S $URL"
+  
   if [ "$DEBUG" == "1" ]; then
-    echo "Should run ... $curl"
+    echo "Should run ... $curlCmd"
     
   else
-	  CURL_RESULT=$($curl)
+	  CURL_RESULT=$($curlCmd)
 	  if [ -z "$CURL_RESULT" ]; then
 	    return 0;
 	  else
