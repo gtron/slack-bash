@@ -70,10 +70,13 @@ done
 
 sendSlack() {
 
-  MESSAGE=$( echo "$@" | sed -f urlencode.sed );
-  [ ! -z $COLOR ] && ATTACHMENTS=$( echo "[{\"pretext\": \"$PRETEXT\", \"text\": \"$@\", \"color\":\"${COLOR}\"}]" | sed -f urlencode.sed) && MESSAGE=""
+  MSG="$@"
+  MESSAGE=$( echo "$MSG" | sed -f urlencode.sed );
+  [ ! -z $COLOR ] && ATTACHMENTS=$( echo "[{\"pretext\": \"$PRETEXT\", \"text\": \"$@\", \"color\":\"${COLOR}\", \"fallback\":\"${MSG:0:60}...\"}]" | sed -f urlencode.sed) && MESSAGE=""
 
-  PAYLOAD="${ASUSER:-""}channel=${DEST}&username=${BOTNAME}&icon_emoji=${ICON}&text=${MESSAGE}&token=$TOKEN&pretty=1&attachments=$ATTACHMENTS";
+  IMAGE="https://slack.global.ssl.fastly.net/205a/img/services/jenkins-ci_36.png"
+  [ -z $IMAGE ] || [[ $_DEST =~ %40 ]] ||  IMAGE="icon_url=$IMAGE" && ICON=""
+  PAYLOAD="${ASUSER:-""}channel=${DEST}&username=${BOTNAME}&icon_emoji=${ICON}&text=${MESSAGE}&token=$TOKEN&pretty=1&${IMAGE}&attachments=$ATTACHMENTS";
 
   API="api/chat.postMessage"
   URL="https://${HOSTNAME}/$API?$PAYLOAD"
