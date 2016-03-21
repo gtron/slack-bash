@@ -6,6 +6,8 @@ BOTNAME='BashBot'
 
 ICON=':computer:';
 
+DIR=$(dirname $0)
+
 while [[ $# > 0 && $1 =~ -* ]]
 do
 key="$1"
@@ -25,6 +27,19 @@ case $key in
                 shift
                 COLOR=$1
         ;;
+	--hostname)
+		shift
+		HOSTNAME=$1
+		[[ "$HOSTNAME" =~ "." ]] || HOSTNAME="$HOSTNAME.slack.com"
+	;;
+	--token)
+		shift
+		TOKEN=$1
+	;;
+	--name)
+		shift
+		BOTNAME=$1
+	;;
         -s|--severity)
           shift
             SEVERITY=${1-'INFO'};
@@ -71,8 +86,8 @@ done
 sendSlack() {
 
   MSG="$@"
-  MESSAGE=$( echo "$MSG" | sed -f urlencode.sed );
-  [ ! -z $COLOR ] && ATTACHMENTS=$( echo "[{\"pretext\": \"$PRETEXT\", \"text\": \"$@\", \"color\":\"${COLOR}\", \"fallback\":\"${MSG:0:60}...\"}]" | sed -f urlencode.sed) && MESSAGE=""
+  MESSAGE=$( echo "$MSG" | sed -f $DIR/urlencode.sed );
+  [ ! -z $COLOR ] && ATTACHMENTS=$( echo "[{\"pretext\": \"$PRETEXT\", \"text\": \"$@\", \"color\":\"${COLOR}\", \"fallback\":\"${MSG:0:60}...\"}]" | sed -f $DIR/urlencode.sed) && MESSAGE=""
 
   IMAGE="https://slack.global.ssl.fastly.net/205a/img/services/jenkins-ci_36.png"
   [ -z $IMAGE ] || [[ $_DEST =~ %40 ]] ||  IMAGE="icon_url=$IMAGE" && ICON=""
@@ -97,4 +112,4 @@ sendSlack() {
 
 }
 
-sendSlack "$MSG"
+sendSlack "${MSG/ /}"
